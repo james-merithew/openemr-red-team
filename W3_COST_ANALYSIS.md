@@ -71,5 +71,4 @@ growing linearly — the opposite of a naive cost-per-token × n model.
   halts/redirects when not (budget spent).
 - Frontier-model refusal of offensive prompts is a **known constraint**, handled by the
   generator Protocol seam (deterministic + local/OSS fallback) — see
-  [`docs/DECISIONS.md`](docs/DECISIONS.md) (2026-07-20, generator Protocol) and
-  [`ARCHITECTURE.md`](ARCHITECTURE.md) §12.
+  [`ARCHITECTURE.md`](ARCHITECTURE.md) §15 (model-choice defense / generator Protocol).

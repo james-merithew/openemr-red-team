@@ -22,10 +22,14 @@
 > | Versioned JSON-Schema contracts + **typed error schema** | ✅ shipped — [`contracts/`](./contracts) (5 schemas + tests) |
 > | Live proof + ≥3 full vuln reports vs the deployed target | ✅ shipped — `defense/week3/{live_proof.md,reports/}` |
 > | Self-contained observability (cases/category, pass-rate, findings) | ✅ shipped — `redteam/observability.py` |
+> | Multi-turn attack **cases** authored + schema-validated | ✅ shipped — `redteam/` cases (incl. a 12-turn sequence) |
+> | Multi-turn **stateful conversation replay** vs the target | 🔜 Final — §3.1; MVP runner delivers only the final turn against a stateless `/chat` (`redteam/runner.py` `_case_attack`→`chat_turns[-1]`) |
 > | Multi-lens Judge with **order-swap debiasing** | 🔜 Final — §8; MVP ships single escalate-only lens + the deterministic veto |
 > | **Cross-category** regression flagging (fix A breaks B) | 🔜 Final — §9; MVP ships same-category reappearance |
+> | Orchestrator→regression-run **trigger edge** | 🔜 Final — §9; Orchestrator prioritization shipped, but regression runs are **timer-driven** today (`next_directive()` output not yet consumed to launch runs) |
+> | Partial-success-driven **mutation feedback loop** | 🔜 Final — §3.2; MVP generates mutations for all base attacks, but no verdict→mutation selection path yet |
 > | Frozen golden-verdict **drift canary** for the Judge | 🔜 Final — §13 (criteria defined; job not yet wired) |
-> | Per-agent **cost** + Handoff-ordered trace in observability | 🔜 Final — §10; MVP observability is enum/count-only |
+> | Per-agent **cost** + Handoff-ordered trace in observability | 🔜 Final — §10; MVP observability is enum/count-only, per-run cost lives in the static `W3_COST_ANALYSIS.md` |
 >
 > **Companion documents:** [`THREAT_MODEL.md`](./THREAT_MODEL.md) (the surface this
 > platform exercises), [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md) &
@@ -46,9 +50,13 @@ The platform is a **closed adversarial loop of four agents** wrapping the existi
 read-only Clinical Co-Pilot sidecar. The **Orchestrator** is the campaign brain: it
 reads the observability substrate — coverage gaps per attack category, open
 findings, and regressions — and decides what to attack next, under an explicit
-cost/rate-limit budget. The **Red Team** agent generates, mutates, and chains
-multi-turn attacks against the Co-Pilot's live endpoints, emitting a structured
-attack-attempt for every exchange. The **Judge** renders an independent
+cost/rate-limit budget. The **Red Team** agent generates and mutates
+attacks against the Co-Pilot's live endpoints, emitting a structured
+attack-attempt for every exchange. Multi-turn attack *cases* are authored and
+schema-validated (a 12-turn sequence is in the corpus); full **stateful
+conversation replay** against the target is designed and specced but not yet
+wired in the MVP runner, which delivers only the final turn against a stateless
+`/chat` (§3.1). The **Judge** renders an independent
 success/fail/partial verdict on each attempt using the drift-resistant panel
 pattern already proven in `copilot/evals/golden/judge_panel.py` — a deterministic
 safety veto no biased or drifted lens can override. The **Documentation** agent
@@ -119,7 +127,13 @@ coordination · AI-vs-deterministic split.**
 ### 3.1 Red Team agent
 - **Role.** Generate seed attacks per category; mutate them (paraphrase, encoding,
   role-play framing, token-smuggling); drive multi-turn conversations that build
-  state toward a jailbreak. Categories map to the Co-Pilot's own invariants
+  state toward a jailbreak. **Shipped-vs-designed:** seed generation and mutation
+  are shipped, and multi-turn attack *cases* are authored and schema-validated
+  (including a 12-turn sequence); the **stateful multi-turn replay** that would
+  drive those turns in order against the target is designed and specced, **not yet
+  wired in the MVP runner** — today `redteam/runner.py` `_case_attack` sends only
+  the final turn (`chat_turns[-1]`) against the stateless `/chat`. Categories map to
+  the Co-Pilot's own invariants
   (`CLAUDE.md`): PHI exfiltration, scope-widening injection, authorization bypass,
   fabrication/uncited-claim induction, guideline-text laundering, unsafe order/med
   suggestion, degraded-mode coercion.
@@ -158,8 +172,12 @@ coordination · AI-vs-deterministic split.**
   an uncited claim survive the Verifier? — are computed by deterministic scanners.
   An attacker-biased or drifted lens can never vote "danger" into "safe."
 - **Coordination.** Consumes Red Team attempts; produces to Documentation (on
-  success) and to Regression (always). A `partial` verdict is a coverage signal to
-  the Orchestrator — a near-miss means "mutate harder here."
+  success) and to Regression (always). A `partial` verdict is designed to be a
+  coverage signal to the Orchestrator — a near-miss means "mutate harder here."
+  **Shipped-vs-designed:** the MVP generates mutations for *all* base attacks up
+  front; the **partial-success-driven feedback loop** that would select
+  partially-successful attempts and preferentially mutate them is designed, **not
+  yet wired** — there is no verdict→mutation selection path in the MVP code.
 - **AI vs deterministic.** The *nuanced* verdict (a meaningful jailbreak vs a
   refusal-with-hedge) is AI; the *ground-truth safety facts* beneath it are
   deterministic scanners the verdict must respect (the veto).
@@ -171,7 +189,11 @@ coordination · AI-vs-deterministic split.**
   across categories and versions, resilience trend, finding status, per-run cost +
   cost-scaling rate — plus regression/reappearance signals from the harness.
 - **Outputs.** Orchestrator→RedTeam `campaign_directive` records (contract #1);
-  regression-run triggers; budget-exhaustion / stop signals.
+  regression-run triggers; budget-exhaustion / stop signals. **Shipped-vs-designed:**
+  the Orchestrator's deterministic prioritization / `next_directive()` is
+  implemented; the **Orchestrator→regression-run trigger edge** is designed but not
+  yet wired — regression runs are **timer-driven** (interval) today, and
+  `next_directive()` output is not yet consumed to launch runs.
 - **Trust level: trusted control plane, deterministic where it counts.** Target
   *selection* may be AI-assisted (summarize where the system is weakest), but budget
   enforcement and stop conditions are **deterministic** — an AI orchestrator must
@@ -394,18 +416,23 @@ The harness is the platform's memory and its authority on "fixed."
   per-category `results.json` aggregate the golden gate already writes and
   `metrics_summary.py` already reads.
 - **Auto-run on trigger.** A `regression_run` route replays the stored exploit seeds
-  against the *current* Co-Pilot version — triggered on a new target deployment, on a
-  time window, or on demand when the Red Team files a new exploit.
+  against the *current* Co-Pilot version. **Shipped-vs-designed:** the MVP console
+  runs the suite on a **timer** (interval); the **Orchestrator→regression-run
+  trigger edge** (fire on a new target deployment or on demand when the Red Team
+  files a new exploit, from `next_directive()`) is designed, **not yet wired** — see
+  §3.3.
 - **Reappearance detection.** A stored exploit with `status=fixed` that the Judge now
   verdicts `success` again flips to `regressed` and the gate goes red — keyed on
   `(category, reproduction_seed, target_version)`, so the failure names the exact
   commit whose protection was lost.
-- **Cross-category regression.** The harness re-runs the *whole* suite on every fix,
-  not just the fixed category. If a fix in category A coincides with a
-  previously-`fail` attempt in category B flipping to `success`, and both exercise
-  the same defense (Verifier / Critic / authz / grounding), it emits a
-  `cross_category_regression` tying both case-ids to the shared defense — a class a
-  per-category rate cannot see.
+- **Cross-category regression** (🔜 Final — designed, not yet shipped). The design
+  re-runs the *whole* suite on every fix, not just the fixed category: if a fix in
+  category A coincides with a previously-`fail` attempt in category B flipping to
+  `success`, and both exercise the same defense (Verifier / Critic / authz /
+  grounding), it emits a `cross_category_regression` tying both case-ids to the
+  shared defense — a class a per-category rate cannot see. The MVP ships
+  **same-category reappearance** detection (above); the cross-category flagging path
+  is **described but not yet implemented** (no code).
 
 ### 9.1 What it means for a regression test to PASS (the crux)
 
@@ -453,15 +480,28 @@ discipline is inherited.
 | Pass/fail per **system version** (`target_version`) | store | ✅ (trend) | ✅ (resilience axis) |
 | Resilience trend over time | derived | ✅ | ✅ (downtrend = regression pressure) |
 | Finding status (open/in-progress/resolved) | store | ✅ | ✅ (open-finding pressure) |
-| Per-run cost + cost-scaling rate | `TurnObserver.record_cost` | ✅ | ✅ (budget) |
-| Per-agent activity log & ordering | `Handoff` trail (`seq`-ordered, enum-only) | ✅ | ✅ (trace a finding back through every agent) |
+| Findings by severity / status | store | ✅ | ✅ |
+| Resilience by `target_version` | store | ✅ | ✅ (resilience axis) |
+| Per-run cost + cost-scaling rate | static `W3_COST_ANALYSIS.md` (deliverable); runtime `TurnObserver.record_cost` 🔜 Final | 🔜 (see cost doc) | 🔜 (budget) |
+| Per-agent ordered execution trace view | `correlation_id` threaded through all inter-agent messages (shipped); the ordered per-agent trace *view* 🔜 Final | 🔜 | 🔜 |
 
 Built as an extension of the `MetricsSummary` singleton — a `record_attempt` /
 `record_verdict` / `record_finding` family and a `red_team` section in `summary()`,
 all "never fatal," all enum/count-only. Surfaced via a `/dashboard`-style page for
-humans and the same JSON `summary()` for the Orchestrator. A finding is traceable
-back through every agent that produced it via its correlation id — the observability
-requirement, met by the reused sink discipline.
+humans and the same JSON `summary()` for the Orchestrator.
+
+**Shipped-vs-designed (honest).** The MVP observability layer ships per-category
+counts, verdict pass/fail rates, findings by severity/status, and resilience via
+`target_version`. Two axes are designed but not yet wired into the runtime view:
+**(a) per-run cost + cost-scaling** is answered today by the static
+[`W3_COST_ANALYSIS.md`](./W3_COST_ANALYSIS.md) deliverable — runtime per-run cost
+surfacing (`TurnObserver.record_cost` into the read-model) is designed, not yet
+wired; **(b)** the **`correlation_id` is threaded through all inter-agent messages**
+(a finding *can* be traced back through every agent that produced it), but the
+**ordered per-agent execution-trace *view*** over that trail is designed, not yet
+surfaced. Neither is a failure of the sink discipline — the enum-only `Handoff`
+trail and correlation id are shipped; the surfacing UI/read-model rows are the
+Final-phase work.
 
 ---
 
@@ -481,6 +521,18 @@ requirement, met by the reused sink discipline.
 - **Cost-scaling rate is a first-class observed metric** (§10), so runaway cost is
   visible *before* it runs away — the "halt when cost accumulates without signal"
   requirement.
+
+### 11.1 External API dependencies — auth, rate limits, pagination
+
+The platform calls exactly three external APIs. **None is paginated** — every one is
+a single-shot request/response, which is the honest reason pagination is N/A across
+the board (there is no cursor/offset to walk).
+
+| External API | Auth | Rate-limit handling | Pagination |
+| --- | --- | --- | --- |
+| **Anthropic (LLM)** — attack generation / judging lenses | API key via env | `max_retries=1` + exponential backoff, then **budget-ceiling abort** (`max_attempts`/`max_tokens`/`max_cost_usd`) | N/A — single request/response |
+| **Co-Pilot target** — attack dispatch to `/chat` and public surfaces | Unauth for public surfaces / self-minted dev session token for `/chat` | Bounded campaigns (no hammering); **abort on error**, never retry-storm | N/A — single request/response |
+| **LangSmith (observability)** — trace/child-run export | API key via env | Async / best-effort, **never fatal** (a throttled export degrades traces, never the run) | N/A — single request/response |
 
 ---
 

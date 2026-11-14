@@ -99,6 +99,9 @@ python -m ruff check redteam contracts
 | Build-vs-configure record | [W3_BUILD_VS_CONFIGURE.md](W3_BUILD_VS_CONFIGURE.md) |
 | ATO evidence packet | [W3_ATO_PACKET.md](W3_ATO_PACKET.md) |
 | Platform cost analysis (100/1K/10K/100K runs) | [W3_COST_ANALYSIS.md](W3_COST_ANALYSIS.md) |
+| User doc (who the platform is for) | [USERS.md](USERS.md) |
+| Performance baseline + load test | [W3_PERF_BASELINE.md](W3_PERF_BASELINE.md) |
+| Exploit-DB migration approach | [MIGRATIONS.md](MIGRATIONS.md) |
 
 ## Regression drill (0 → 1 → 0) — the loop is a closed control, not a one-time scan
 
