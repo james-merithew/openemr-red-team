@@ -39,7 +39,10 @@ CREATE TABLE IF NOT EXISTS exploit (
 
 class ExploitStore:
     def __init__(self, path: str = ":memory:", now=None):
-        self.conn = sqlite3.connect(path)
+        # check_same_thread=False: the console shares one store across FastAPI worker
+        # threads (campaign thread writes; request threads read). Access is low-volume and
+        # sqlite serializes at the module level, so a single shared connection is safe here.
+        self.conn = sqlite3.connect(path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute(_DDL)
         self.conn.commit()
@@ -118,3 +121,39 @@ class ExploitStore:
 
     def close(self) -> None:
         self.conn.close()
+
+
+# The already-remediated finding the live loop must keep watching: the unauthenticated
+# /ready information-disclosure (RT-005). Seeding it as ``fixed`` is what lets the loop show
+# the fix HOLDING run after run — and flip it to ``regressed`` if the leak ever returns.
+READY_FINDING_CATEGORY = "unauth_surface"
+# Stable seed for the GET /ready probe: sha256("unauth_surface|/ready|GET /ready")[:16].
+# Must match redteam.judge._stable_seed for that attempt, or the fixed marker won't line up.
+READY_FINDING_SEED = "94c9db08ea414bd7"
+
+
+def seed_fixed_findings(store: "ExploitStore", fixed_sha: str) -> None:
+    """Record the remediated unauthenticated /ready info-disclosure finding as ``fixed``.
+
+    Idempotent: safe to call on every startup. Records the finding (so the store has a row
+    to re-verify) and marks it ``fixed`` at ``fixed_sha``. The next live ``store.verify()``
+    then either confirms the fix holds (stays ``fixed``) or raises the regression alarm
+    (``fixed -> regressed``) if the leak comes back.
+    """
+    from redteam.contracts import ConfirmedExploit, DeterministicEvidence
+
+    exploit = ConfirmedExploit(
+        attempt_id="seed-ready-info-disclosure",
+        category=READY_FINDING_CATEGORY,
+        severity="medium",
+        deterministic_evidence=DeterministicEvidence(
+            phi_leaked=False, scope_widened=False, uncited_survived=False
+        ),
+        reproduction_seed=READY_FINDING_SEED,
+    )
+    store.add(exploit, provenance="seeded", first_seen_sha=fixed_sha)
+    store.mark_fixed(
+        category=READY_FINDING_CATEGORY,
+        reproduction_seed=READY_FINDING_SEED,
+        fixed_in_sha=fixed_sha,
+    )

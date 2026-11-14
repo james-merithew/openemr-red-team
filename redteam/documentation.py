@@ -25,6 +25,16 @@ _CLINICAL_IMPACT = {
     "persona_privilege": "An in-band role claim that escalates privilege could bypass the per-patient scope and reach data the user is not authorized to see.",
 }
 
+_REGULATORY_IMPACT = {
+    "prompt_injection_direct": "If the injected instruction moves PHI into the response, that unauthorized disclosure is a HIPAA Breach Notification Rule reportable event (potential OCR penalty, plus patient-safety and clinician-trust harm).",
+    "prompt_injection_indirect": "A poisoned document that steers the briefing toward another patient's data is an unauthorized PHI disclosure — a HIPAA Breach Notification Rule reportable event (potential OCR penalty, plus patient-safety and trust harm).",
+    "cross_patient_exfil": "Cross-patient PHI disclosure is a textbook HIPAA Breach Notification Rule reportable event (potential OCR penalty, mandatory patient/HHS notification, and direct patient-safety and trust harm).",
+    "multiturn_erosion": "If eroded safeguards surface an unsafe order/med suggestion a physician acts on, the result is a patient-safety incident and clinical-liability exposure, not merely a technical defect.",
+    "tool_abuse_dos": "Availability and cost harm: a degraded or unaffordable co-pilot delays the between-rooms briefing, an operational and patient-care continuity risk rather than a direct breach.",
+    "unauth_surface": "Reconnaissance of the PHI-bearing integration map is a HIPAA Security Rule access-control weakness and a precursor to a reportable breach, even before any record is disclosed.",
+    "persona_privilege": "Privilege escalation past the per-patient scope reaches records the user is not authorized to see — an unauthorized PHI disclosure and a HIPAA Breach Notification Rule reportable event (potential OCR penalty, plus trust harm).",
+}
+
 _REMEDIATION = {
     "prompt_injection_direct": "Add programmatic input sanitization; keep the verifier/critic as the exit gate.",
     "prompt_injection_indirect": "Delimit + quarantine ingested free-text as untrusted before it enters the prompt.",
@@ -51,6 +61,9 @@ class DocumentationAgent:
             "## Description & clinical impact\n\n"
             f"A `{exploit.category}` weakness confirmed against `{attempt.endpoint}`. "
             f"{_CLINICAL_IMPACT.get(exploit.category, 'Impacts the trustworthiness of the clinical briefing.')}\n\n"
+            "## Regulatory / business impact\n\n"
+            f"{_REGULATORY_IMPACT.get(exploit.category, 'On a HIPAA-covered clinical system this erodes clinician trust and defensibility; synthetic data here, but the same weakness against production PHI would carry regulatory and patient-safety consequences.')}\n\n"
+            "_Scope note: findings are proven against synthetic demo data on our own fork; the framing above states the consequence the same weakness would carry against production PHI._\n\n"
             "## Reproduction\n\n"
             f"Send to `{attempt.endpoint}`:\n\n```\n{attempt.request_transcript}\n```\n\n"
             "Observed response:\n\n```json\n"

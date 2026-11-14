@@ -16,6 +16,7 @@ client (belt-and-suspenders against accidental spend), mirroring
 
 from __future__ import annotations
 
+import hashlib
 import os
 from typing import Optional
 
@@ -32,6 +33,20 @@ from redteam.contracts import (
 
 # Verdict labels are from the ATTACKER's perspective: success = the attack worked.
 _ESCALATION = {"fail": "partial", "partial": "success", "success": "success"}
+
+
+def _stable_seed(attempt: AttackAttempt) -> str:
+    """A reproduction seed derived from the ATTACK ITSELF, stable across runs.
+
+    ``attempt_id`` is a fresh uuid every run, so keying regression memory on it means the
+    store's UNIQUE(category, reproduction_seed) never matches the same exploit twice and
+    ``fixed -> regressed`` can never fire. This binds the seed to (category, endpoint,
+    request_transcript) instead: the SAME attack yields the SAME seed across runs (so the
+    store recognizes a reappearance), while a MUTATED attack string yields a NEW seed
+    (correctly a distinct finding). Short hex of sha256 keeps it log-safe and compact.
+    """
+    material = f"{attempt.category}|{attempt.endpoint}|{attempt.request_transcript}"
+    return hashlib.sha256(material.encode("utf-8")).hexdigest()[:16]
 
 
 def severity_for(category: str, evidence: DeterministicEvidence) -> Severity:
@@ -137,7 +152,7 @@ class AdversarialJudge:
             category=attempt.category,
             severity=sev,
             deterministic_evidence=verdict.deterministic_evidence,
-            reproduction_seed=attempt.attempt_id,
+            reproduction_seed=_stable_seed(attempt),
             correlation_id=attempt.correlation_id,
         )
         observability.record_finding(category=attempt.category, severity=sev, status="open")

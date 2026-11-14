@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pathlib
 from typing import Optional
 
@@ -22,14 +23,22 @@ from redteam import invariants, runner
 from redteam.cases import load_cases
 from redteam.contracts import AttackAttempt
 from redteam.documentation import DocumentationAgent
-from redteam.judge import AdversarialJudge
+from redteam.judge import AdversarialJudge, _stable_seed
 from redteam.store import ExploitStore
 
 
-def run(base_url: Optional[str] = None, category: str = "unauth_surface", token: Optional[str] = None) -> dict:
+def run(
+    base_url: Optional[str] = None,
+    category: str = "unauth_surface",
+    token: Optional[str] = None,
+    store: Optional[ExploitStore] = None,
+) -> dict:
     target = runner._build_target("prod", base_url or runner.PROD_URL, token)
     cases = [c for c in load_cases() if c.category == category]
-    judge, doc, store = AdversarialJudge(), DocumentationAgent(), ExploitStore()
+    judge, doc = AdversarialJudge(), DocumentationAgent()
+    # A persistent store (REDTEAM_STORE) lets the regression alarm span campaigns; the
+    # in-memory default keeps a one-shot CLI run self-contained.
+    store = store if store is not None else ExploitStore(path=os.environ.get("REDTEAM_STORE", ":memory:"))
     findings, results = [], []
 
     for case in cases:
@@ -40,6 +49,10 @@ def run(base_url: Optional[str] = None, category: str = "unauth_surface", token:
                                 target_version=target.version)
         v = judge.verdict(attempt, status, body, expected, runner.SENTINELS, runner.FOREIGN_PIDS)
         _, checks = invariants.evaluate(attempt, status, body, expected, runner.SENTINELS, runner.FOREIGN_PIDS)
+        # Re-verify EVERY case (not just successes): this is what runs the regression alarm
+        # live — a seeded 'fixed' finding that verdicts 'success' again flips to 'regressed'.
+        seed = _stable_seed(attempt)
+        store.verify(case.category, seed, v.verdict, target.version)
         row = {"case_id": case.id, "category": case.category, "verdict": v.verdict,
                "status_code": status, "invariants": checks, "provenance": "seeded"}
         if v.verdict == "success":
@@ -86,7 +99,6 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--token-env", default="COPILOT_LIVE_TOKEN")
     ap.add_argument("--out", default="defense/week3/live_proof.md")
     args = ap.parse_args(argv)
-    import os
     out = run(args.base_url, args.category, os.environ.get(args.token_env))
     md = _markdown(out)
     pathlib.Path(args.out).parent.mkdir(parents=True, exist_ok=True)

@@ -40,3 +40,12 @@ def test_report_is_reproducible_passthrough():
     assert "/chat" in md and "seed-x" in md       # endpoint + regression seed
     assert "mutation_discovered" in md            # honest provenance
     assert "phi_leaked=True" in md                # deterministic evidence, not prose
+
+
+def test_report_states_regulatory_business_impact():
+    # fm: a report that frames a PHI leak as only a technical bug, not a reportable HIPAA event
+    rep = DocumentationAgent().report(_exploit(category="cross_patient_exfil"), _attempt())
+    md = rep["markdown"]
+    assert "## Regulatory / business impact" in md
+    assert "HIPAA Breach Notification Rule" in md  # explicit regulatory framing
+    assert "synthetic" in md                       # honest scope note, no overclaim
