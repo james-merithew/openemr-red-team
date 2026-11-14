@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/openemr-copilot/contracts/attack_attempt.v1.json",
+  "title": "attack_attempt",
+  "description": "Red Team -> Judge. One record per attack turn/exchange against the target. Producer: Red Team. Consumer: Judge.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "attempt_id", "conversation_id", "turn_seq", "category", "request_transcript", "response_transcript", "endpoint", "target_version", "correlation_id", "ts"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "attempt_id": {"type": "string", "description": "uuid4 hex; unique per attempt"},
+    "conversation_id": {"type": "string", "description": "groups turns of one multi-turn attack"},
+    "turn_seq": {"type": "integer", "minimum": 0, "description": "0-based turn index within the conversation"},
+    "category": {
+      "type": "string",
+      "enum": ["prompt_injection_direct", "prompt_injection_indirect", "cross_patient_exfil", "multiturn_erosion", "tool_abuse_dos", "unauth_surface", "persona_privilege"]
+    },
+    "mutation_lineage": {"type": "array", "items": {"type": "string"}, "description": "ordered ancestry of mutations from the seed"},
+    "request_transcript": {"type": "string", "description": "the exact request/prompt sent; free text; UI/trace ONLY, never logged"},
+    "response_transcript": {"type": "string", "description": "the target's exact response; free text; UI/trace ONLY, never logged"},
+    "endpoint": {"type": "string"},
+    "target_version": {"type": "string", "description": "git_sha of the Co-Pilot under test"},
+    "correlation_id": {"type": "string"},
+    "ts": {"type": "string", "format": "date-time"}
+  }
+}

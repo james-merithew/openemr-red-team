@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.sqlite
+*.sqlite3
+evals/adversarial/results.json
+redteam/console/state/
+.env
+.pytest_cache/
+.ruff_cache/

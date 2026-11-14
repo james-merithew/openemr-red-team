@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/openemr-copilot/contracts/error.v1.json",
+  "title": "agent_error",
+  "description": "Typed error response for a known failure mode. Any agent emits this INSTEAD of its success message when a named failure condition trips. Producers: all agents. Consumer: Orchestrator (decides retry/backoff/halt). The five error_type values are the platform's known failure surface.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "error_id", "error_type", "agent", "retryable", "correlation_id", "ts"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "error_id": {"type": "string", "description": "uuid4 hex"},
+    "error_type": {
+      "type": "string",
+      "enum": ["target_unreachable", "budget_exceeded", "judge_timeout", "no_findings", "regression_detected"],
+      "description": "target_unreachable = deployed target did not answer (Red Team/target); budget_exceeded = attack budget ceiling hit (Orchestrator/Red Team); judge_timeout = no verdict within the time budget (Judge); no_findings = campaign window closed with nothing new (Orchestrator); regression_detected = a previously-fixed exploit reappeared (Regression harness)"
+    },
+    "agent": {
+      "type": "string",
+      "enum": ["orchestrator", "red_team", "judge", "documentation", "regression"],
+      "description": "which agent raised the error"
+    },
+    "category": {
+      "type": ["string", "null"],
+      "enum": ["prompt_injection_direct", "prompt_injection_indirect", "cross_patient_exfil", "multiturn_erosion", "tool_abuse_dos", "unauth_surface", "persona_privilege", null],
+      "description": "the campaign category, when applicable"
+    },
+    "retryable": {"type": "boolean", "description": "true if the Orchestrator should back off + retry (e.g. target flap); false if it should halt/redirect (e.g. budget spent)"},
+    "detail": {"type": "string", "description": "free text; UI/trace only, never logged"},
+    "correlation_id": {"type": "string"},
+    "ts": {"type": "string", "format": "date-time"}
+  }
+}

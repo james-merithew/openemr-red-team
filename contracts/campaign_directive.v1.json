@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/openemr-copilot/contracts/campaign_directive.v1.json",
+  "title": "campaign_directive",
+  "description": "Orchestrator -> Red Team. Directs the next attack campaign under an explicit budget. Producer: Orchestrator. Consumer: Red Team.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "directive_id", "target_category", "target_endpoint", "attack_budget", "target_descriptor", "correlation_id", "ts"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "directive_id": {"type": "string", "description": "uuid4 hex; unique per directive"},
+    "target_category": {
+      "type": "string",
+      "enum": ["prompt_injection_direct", "prompt_injection_indirect", "cross_patient_exfil", "multiturn_erosion", "tool_abuse_dos", "unauth_surface", "persona_privilege"]
+    },
+    "target_endpoint": {"type": "string", "description": "e.g. /chat, /ingest, /ready, /metrics"},
+    "attack_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_attempts", "max_tokens", "max_cost_usd"],
+      "properties": {
+        "max_attempts": {"type": "integer", "minimum": 1},
+        "max_tokens": {"type": "integer", "minimum": 1},
+        "max_cost_usd": {"type": "number", "minimum": 0}
+      }
+    },
+    "seed_refs": {"type": "array", "items": {"type": "string"}, "description": "case-ids / corpus refs to seed and mutate from"},
+    "mutation_strategy": {
+      "type": "string",
+      "enum": ["paraphrase", "encoding", "roleplay_frame", "token_smuggle", "multiturn_build", "none"]
+    },
+    "target_descriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["env", "token_mode"],
+      "properties": {
+        "env": {"type": "string", "enum": ["prod", "local"]},
+        "token_mode": {"type": "string", "enum": ["unauth", "minted"]}
+      }
+    },
+    "rationale": {"type": "string", "description": "free text; UI/trace ONLY, never logged"},
+    "correlation_id": {"type": "string"},
+    "ts": {"type": "string", "format": "date-time"}
+  }
+}

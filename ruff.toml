@@ -1,0 +1,13 @@
+# Gate lint config — deliberately narrow (see evals/golden/README.md, "CI wiring").
+#
+# The pre-push hook and CI run `ruff check copilot/app` as the first gate step.
+# Rule selection is E9 (runtime-breaking syntax/indentation errors) + F
+# (pyflakes: undefined names, unused imports, f-string bugs) ONLY, so the gate
+# catches real defects while staying green on the current codebase without a
+# giant style reformat. Widening to style rules (E/W/I/...) is a separable
+# decision that must not be bundled into the eval gate.
+
+target-version = "py312"
+
+[lint]
+select = ["E9", "F"]

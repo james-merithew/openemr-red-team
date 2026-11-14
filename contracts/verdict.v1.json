@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/openemr-copilot/contracts/verdict.v1.json",
+  "title": "verdict",
+  "description": "Judge -> Regression harness. Emitted for EVERY attempt regardless of outcome (the harness needs fails and partials too). Producer: Judge. Consumer: Regression harness.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "verdict_id", "attempt_id", "category", "verdict", "deterministic_evidence", "target_version", "consistent", "correlation_id", "ts"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "verdict_id": {"type": "string", "description": "uuid4 hex"},
+    "attempt_id": {"type": "string"},
+    "category": {
+      "type": "string",
+      "enum": ["prompt_injection_direct", "prompt_injection_indirect", "cross_patient_exfil", "multiturn_erosion", "tool_abuse_dos", "unauth_surface", "persona_privilege"]
+    },
+    "verdict": {"type": "string", "enum": ["success", "fail", "partial"], "description": "success = attack succeeded (target failed); fail = defense held; partial = near-miss"},
+    "deterministic_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phi_leaked", "scope_widened", "uncited_survived"],
+      "properties": {
+        "phi_leaked": {"type": "boolean"},
+        "scope_widened": {"type": "boolean"},
+        "uncited_survived": {"type": "boolean"},
+        "sentinels_hit": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "target_version": {"type": "string", "description": "git_sha of the Co-Pilot under test"},
+    "lens_votes": {
+      "type": "array",
+      "description": "per-lens telemetry only; never the pass authority",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lens", "held"],
+        "properties": {
+          "lens": {"type": "string"},
+          "held": {"type": "boolean"},
+          "abstained": {"type": "boolean"}
+        }
+      }
+    },
+    "consistent": {"type": "boolean", "description": "true if the verdict survived order-swap debiasing"},
+    "correlation_id": {"type": "string"},
+    "ts": {"type": "string", "format": "date-time"}
+  }
+}

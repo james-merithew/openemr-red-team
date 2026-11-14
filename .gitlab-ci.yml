@@ -1,0 +1,27 @@
+# AI Red Team platform — CI. Fully hermetic: zero API keys, zero network, seconds.
+# Mirrors the pre-push discipline; the deterministic gate is the authority.
+
+stages:
+  - eval
+
+eval:
+  stage: eval
+  image: python:3.12-slim
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+  before_script:
+    - python -m pip install --quiet -r requirements.txt
+  script:
+    # lint
+    - python -m ruff check redteam contracts
+    # unit + integration + contract conformance (incl. the typed error schema)
+    - python -m pytest redteam contracts -q
+    # hermetic adversarial suite + deterministic gate (resilience floors + OWASP coverage)
+    - python -m redteam.runner --target hermetic --out evals/adversarial/results.json
+    - python -m redteam.gate --results evals/adversarial/results.json --baseline evals/adversarial/baseline.json
+  artifacts:
+    when: always
+    paths:
+      - evals/adversarial/results.json
+    expire_in: 30 days

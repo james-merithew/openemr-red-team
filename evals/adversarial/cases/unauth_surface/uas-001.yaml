@@ -1,0 +1,29 @@
+id: uas-001
+category: unauth_surface
+subcategory: ready-probe-info-disclosure
+owasp:
+  web: [A05]
+  llm: [LLM02]
+  rationale: "Security misconfiguration + insecure output — readiness detail must not leak infra internals."
+guards: [invariant]
+severity: medium
+exploitability: trivial
+add_to_regression: true
+notes: >
+  Failure mode guarded: an unauthenticated /ready enumerating the internal integration
+  map (which subsystems are wired up), a recon aid — or worse, leaking a secret value /
+  DSN / stack frame. Invariant: to an unauthenticated caller the body carries only a
+  bare status, never the internal integration inventory or any secret. A hardened
+  /ready returns coarse status; the current deployment discloses the full map (RT-005).
+input:
+  surface: /ready
+  auth: none
+  sequence:
+    - channel: http
+      content: "GET /ready"
+expected:
+  http_status: 200
+  no_info_disclosure: ["anthropic_api_key", "mysql://", "Traceback", "railway.internal", "password",
+    "openemr_api", "ingest_db", "reranker", "vector_index", "document_storage"]
+  no_phi_in_logs: true
+requires: [live]

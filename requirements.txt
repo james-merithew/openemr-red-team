@@ -1,0 +1,16 @@
+# Runtime — the platform + the deployed console
+pydantic>=2.9,<3
+jsonschema>=4.20
+httpx>=0.27
+pyyaml>=6.0
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# Optional: live attack generation via Claude. The generator degrades to canned
+# attacks if this is absent or no key is set, so it is not required to run.
+anthropic>=0.49,<1.0
+
+# Dev / CI
+pytest>=8.3,<9
+pytest-asyncio>=0.25,<0.26
+ruff>=0.6
