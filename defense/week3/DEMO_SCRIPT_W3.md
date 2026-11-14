@@ -79,9 +79,15 @@ a swappable interface — and because the Judge is deterministic, a refusing gen
 replays are all deterministic — zero dollars — so cost scales sub-linearly; you only spend
 tokens generating genuinely new attacks."
 
-### Beat 8 — Close (4:30–4:45)
-`[SCREEN]` The three URLs.
-`[SAY]` "Continuous, reproducible, honest — attacker and judge both untrusted, the
+### Beat 8 — Why this stands out + close (4:30–5:05) · *creativity, differentiation*
+`[SCREEN]` The console (whole dashboard), then the three URLs.
+`[SAY]` "Most adversarial-AI submissions are a static scan and a dashboard that's always
+green — and a dashboard that's never once shown red is impossible to trust. Mine is different
+in five ways you can see live: the loop actually **closes across time** — it remembers a fix
+and flips to 'regressed' if it comes back; it **tests its own detector** every cycle; you can
+**open any verdict** and see the mechanical check; findings carry **HIPAA breach framing**,
+not CTF language; and it shows a real **heartbeat**, so 'continuous' is verifiable, not
+claimed. Continuous, reproducible, honest — attacker and judge both untrusted, the
 deterministic layer the authority. That's the platform."
 
 ---
@@ -95,3 +101,29 @@ deterministic layer the authority. That's the platform."
 
 **Note on honesty:** findings are `seeded` from the threat model, run against our own fork on
 synthetic data — never presented as novel 0-days.
+
+---
+
+## Why this stands out — the enhancements past the MVP floor
+
+The MVP floor is "find and document." These five enhancements — **all live on the console** —
+turn it from a scanner into a **closed, self-checking control.** This is the differentiation
+story; lead with it if a grader asks "what makes yours different."
+
+| # | What most submissions do | What this platform does | Show it |
+| --- | --- | --- | --- |
+| **E1 — regression persistence** | a dashboard that says "green right now" | **remembers** each fix across campaigns (stable per-attack key + durable store) and flips `fixed → regressed` automatically if it returns | the Find→Fix→Verify hero panel |
+| **E3 — judge-integrity canary** | *claims* "our judge is deterministic" | **proves it every cycle** — pushes a known leak through the live judge and confirms it's still caught; goes red if the detector silently breaks | the "judge live: catches a planted leak" pill |
+| **E3 — inspectable verdicts** | shows a verdict (trust us) | lets you **open the verdict** — raw request, response, the exact mechanical invariant, pass/fail | expand an Inspectable verdict |
+| **E4 — PHI/HIPAA framing** | "info disclosure (medium)" | frames findings as **HIPAA Breach Notification reportable events** — clinical + regulatory stakes, not CTF flags | any vuln report |
+| **E5 — liveness heartbeat** | "runs every 30 min" (unverifiable) | a live **cycle counter + next-run countdown** so "continuous" is witnessed, not asserted | the heartbeat panel |
+
+**The one-liner:** it doesn't just find bugs — it **proves it keeps you safe over time, and
+proves its own proof.** A green board is weak; a board that has caught a real bug, fixed it,
+re-verified it, and tests its own detector is trustworthy. That distinction is the whole point.
+
+**Grounded in a 3-lens design pass** (economics / psychology / technology): every enhancement
+was chosen because it converts a *claimed* property into a *witnessed* one, at near-zero build
+cost by reusing seams already in the platform — the disciplined "no" was per-agent cost
+metrics and an LLM-lens drift canary (uncontested ground; the deterministic invariant already
+owns that).
