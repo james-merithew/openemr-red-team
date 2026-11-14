@@ -8,9 +8,9 @@
 > the platform spends its budget where the risk actually is.
 >
 > **Companion documents:** [`ARCHITECTURE.md`](./ARCHITECTURE.md) (the multi-agent
-> platform that exercises this model), [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md)
-> (the target's as-built design), [`W1_ARCHITECTURE.md`](./W1_ARCHITECTURE.md)
-> (Week-1 architecture + three-lens framework), [`CLAUDE.md`](./CLAUDE.md) (the
+> platform that exercises this model), [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md)
+> (the target's as-built design), [`W1_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W1_ARCHITECTURE.md)
+> (Week-1 architecture + three-lens framework), [`CLAUDE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/CLAUDE.md) (the
 > nine invariants), [`W3_TRIAGE_REPORT.md`](./W3_TRIAGE_REPORT.md) (a worked
 > triage over these findings).
 

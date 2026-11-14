@@ -1,8 +1,8 @@
 # W3_ATO_PACKET.md — Authorization-to-Operate Evidence Packet, Clinical Co-Pilot
 
-> **Status: ATO-STYLE EVIDENCE PACKET (v1, 2026-07-20).** This is the reviewer's packet — the artifact a security assessor would accept as the evidentiary basis for an authorization decision — assembled from existing repo artifacts; it is **separate** from the design narrative in [`ARCHITECTURE.md`](./ARCHITECTURE.md), with companion links to [`THREAT_MODEL.md`](./THREAT_MODEL.md) (attack surface), [`W3_TRIAGE_REPORT.md`](./W3_TRIAGE_REPORT.md) (worked triage over 13 findings), and [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) (the target's as-built design).
+> **Status: ATO-STYLE EVIDENCE PACKET (v1, 2026-07-20).** This is the reviewer's packet — the artifact a security assessor would accept as the evidentiary basis for an authorization decision — assembled from existing repo artifacts; it is **separate** from the design narrative in [`ARCHITECTURE.md`](./ARCHITECTURE.md), with companion links to [`THREAT_MODEL.md`](./THREAT_MODEL.md) (attack surface), [`W3_TRIAGE_REPORT.md`](./W3_TRIAGE_REPORT.md) (worked triage over 13 findings), and [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md) (the target's as-built design).
 
-**Companion documents:** [`CLAUDE.md`](./CLAUDE.md) (the nine invariants, verbatim), [`docs/PRD.md`](./docs/PRD.md) (what/why + definition-of-done), [`docs/TECH_SPEC.md`](./docs/TECH_SPEC.md) (module index), [`copilot/AUTH_TOKEN_SPEC.md`](./copilot/AUTH_TOKEN_SPEC.md) (session-token contract), [`W1_ARCHITECTURE.md`](./W1_ARCHITECTURE.md) (Week-1 baseline).
+**Companion documents:** [`CLAUDE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/CLAUDE.md) (the nine invariants, verbatim), [`docs/PRD.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/docs/PRD.md) (what/why + definition-of-done), [`docs/TECH_SPEC.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/docs/TECH_SPEC.md) (module index), [`copilot/AUTH_TOKEN_SPEC.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/copilot/AUTH_TOKEN_SPEC.md) (session-token contract), [`W1_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W1_ARCHITECTURE.md) (Week-1 baseline).
 
 This packet does not introduce new claims. Every section names the repo artifact it draws from; where a fact is verified against running infrastructure it is marked **VERIFIED live**. Nothing here is a live-exploited breach — the vulnerability evidence in §6 is a disciplined self-scan, triaged in [`W3_TRIAGE_REPORT.md`](./W3_TRIAGE_REPORT.md).
 
@@ -10,7 +10,7 @@ This packet does not introduce new claims. Every section names the repo artifact
 
 ## 1. System identification & authorization boundary
 
-*Draws from [`CLAUDE.md`](./CLAUDE.md), [`docs/PRD.md`](./docs/PRD.md), [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) §2.4.*
+*Draws from [`CLAUDE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/CLAUDE.md), [`docs/PRD.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/docs/PRD.md), [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md) §2.4.*
 
 ### 1.1 System identification
 
@@ -67,7 +67,7 @@ The two controls a reviewer should test first are #2 and #4 — the **Authorizat
 
 ## 2. Architecture diagram — trust zones
 
-*Draws from [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) §2.4 (system shape). Redrawn compactly for the boundary review.*
+*Draws from [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md) §2.4 (system shape). Redrawn compactly for the boundary review.*
 
 Three trust zones: **PUBLIC** (Railway edge, TLS-enforced; the only externally reachable surface), **PRIVATE** (Railway internal network — sidecar + database), and **EXTERNAL** (third-party services under BAA/ZDR assumption). The two red-bordered nodes are the deterministic trust boundaries.
 
@@ -119,7 +119,7 @@ flowchart LR
 
 ## 3. Data-flow diagram — `/chat` and `/ingest`
 
-*Draws from [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) §3.1 (auth flow), §4.1 (ingest flow). The two trust boundaries are marked.*
+*Draws from [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md) §3.1 (auth flow), §4.1 (ingest flow). The two trust boundaries are marked.*
 
 ```mermaid
 flowchart TD
@@ -153,7 +153,7 @@ The two flows share the same first boundary (the Authorization Gateway) and each
 
 ## 4. Authorization model
 
-*Draws from [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) §3.1, §4.2 and [`copilot/AUTH_TOKEN_SPEC.md`](./copilot/AUTH_TOKEN_SPEC.md).*
+*Draws from [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md) §3.1, §4.2 and [`copilot/AUTH_TOKEN_SPEC.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/copilot/AUTH_TOKEN_SPEC.md).*
 
 Every caller-to-target pair, the credential it carries, the scope that credential grants, and the deterministic point where the grant is enforced:
 
@@ -171,7 +171,7 @@ Every caller-to-target pair, the credential it carries, the scope that credentia
 
 ## 5. Dependency inventory — versions & provenance
 
-*Draws from [`copilot/requirements.txt`](./copilot/requirements.txt). Versions are pinned there; `pip-audit` + `bandit` run against this set in [`.gitlab-ci.yml`](./.gitlab-ci.yml).*
+*Draws from `copilot/requirements.txt`. Versions are pinned there; `pip-audit` + `bandit` run against this set in [`.gitlab-ci.yml`](./.gitlab-ci.yml).*
 
 Runtime and security-relevant dependencies (Python 3.12), as pinned:
 
@@ -224,7 +224,7 @@ Five confidently-raised findings (RT-009…013) are **already mitigated** by the
 
 ## 7. Test evidence (eval results)
 
-*Draws from [`copilot/evals/golden/results.json`](./copilot/evals/golden/results.json), [`copilot/evals/golden/baseline.json`](./copilot/evals/golden/baseline.json), [`.gitlab-ci.yml`](./.gitlab-ci.yml), [`docs/TECH_SPEC.md`](./docs/TECH_SPEC.md), [`docs/PRD.md`](./docs/PRD.md).*
+*Draws from `copilot/evals/golden/results.json`, `copilot/evals/golden/baseline.json`, [`.gitlab-ci.yml`](./.gitlab-ci.yml), [`docs/TECH_SPEC.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/docs/TECH_SPEC.md), [`docs/PRD.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/docs/PRD.md).*
 
 ### 7.1 Golden set — 65 boolean-rubric cases, all passing
 

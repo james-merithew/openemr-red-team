@@ -2,7 +2,7 @@
 
 > **Status: DECISION RECORD (v1, 2026-07-20).** This is the pre-implementation defense for Week 3's multi-agent adversarial security platform: we justify *what we build and what we merely configure* **before** writing a single agent role, so the four custom agents (Orchestrator, Red Team, Judge, Documentation) exist only where nothing off-the-shelf covers the surface.
 >
-> **Companion documents:** [`ARCHITECTURE.md`](./ARCHITECTURE.md) (system-of-record design), [`THREAT_MODEL.md`](./THREAT_MODEL.md) (the healthcare-specific attack surface this platform must cover), [`CLAUDE.md`](./CLAUDE.md) (the nine non-negotiable invariants the co-pilot — our target — is built to uphold).
+> **Companion documents:** [`ARCHITECTURE.md`](./ARCHITECTURE.md) (system-of-record design), [`THREAT_MODEL.md`](./THREAT_MODEL.md) (the healthcare-specific attack surface this platform must cover), [`CLAUDE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/CLAUDE.md) (the nine non-negotiable invariants the co-pilot — our target — is built to uphold).
 
 ---
 

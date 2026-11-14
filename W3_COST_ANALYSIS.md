@@ -2,7 +2,7 @@
 
 > Scope: the cost of running **the adversarial evaluation platform** at 100 / 1K / 10K /
 > 100K **test runs**. This is deliberately separate from
-> [`copilot/COST_ANALYSIS.md`](copilot/COST_ANALYSIS.md), which scales the *target*
+> [`copilot/COST_ANALYSIS.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/copilot/COST_ANALYSIS.md), which scales the *target*
 > product by physicians. Actual dev spend is below; projections follow.
 
 ## The load-bearing insight (why this is not cost-per-token × n)

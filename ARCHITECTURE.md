@@ -28,9 +28,9 @@
 > | Per-agent **cost** + Handoff-ordered trace in observability | 🔜 Final — §10; MVP observability is enum/count-only |
 >
 > **Companion documents:** [`THREAT_MODEL.md`](./THREAT_MODEL.md) (the surface this
-> platform exercises), [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) &
-> [`W1_ARCHITECTURE.md`](./W1_ARCHITECTURE.md) (the target as-built),
-> [`CLAUDE.md`](./CLAUDE.md) (the nine invariants), plus the defense set:
+> platform exercises), [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md) &
+> [`W1_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W1_ARCHITECTURE.md) (the target as-built),
+> [`CLAUDE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/CLAUDE.md) (the nine invariants), plus the defense set:
 > [`W3_BUILD_VS_CONFIGURE.md`](./W3_BUILD_VS_CONFIGURE.md),
 > [`W3_EVIDENCE_PACKET.md`](./W3_EVIDENCE_PACKET.md),
 > [`W3_TRIAGE_REPORT.md`](./W3_TRIAGE_REPORT.md),
@@ -88,7 +88,7 @@ static test list.
 
 ## 2. The three lenses applied to the platform
 
-Week 1's design framework ([`W1_ARCHITECTURE.md`](./W1_ARCHITECTURE.md) §3) carries
+Week 1's design framework ([`W1_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W1_ARCHITECTURE.md) §3) carries
 forward. Every decision is defended through Economics, Psychology, Technology.
 
 - **Economics.** The scarce resource is now **frontier-model spend and rate-limit
@@ -489,7 +489,7 @@ requirement, met by the reused sink discipline.
 Two-tier, from verified live recon:
 - **Prod** — `https://copilot-production-5e86.up.railway.app` is fully live (ingest
   enabled), but `/dev/token` returns **404** (dev-mode off,
-  [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) §3.1). So **token-gated attacks
+  [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md) §3.1). So **token-gated attacks
   against prod need an OpenEMR-minted token** (the chart-iframe URL-fragment token),
   supplied by the operator; **unauthenticated-surface attacks need no token.**
 - **Local** — a dev-mode instance (`COPILOT_AUTH_DEV_MODE=true`, `/dev/token`

@@ -19,7 +19,7 @@ seed cases across all attack categories).
 
 | Week-3 requirement | Deliverable | Status |
 | --- | --- | --- |
-| Stage 1 — target live & testable | [`W2_ARCHITECTURE.md`](../W2_ARCHITECTURE.md), [`DEPLOY.md`](../DEPLOY.md); prod verified live | ✅ existing |
+| Stage 1 — target live & testable | [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md), [`DEPLOY.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/DEPLOY.md); prod verified live | ✅ existing |
 | Stage 2 — threat model (6 categories, ~500-word summary, OWASP) | [`THREAT_MODEL.md`](../THREAT_MODEL.md) | ✅ new |
 | Stage 4 — platform architecture (names each agent, diagram, ~500-word summary) | [`ARCHITECTURE.md`](../ARCHITECTURE.md) | ✅ new |
 | Multi-agent system (Red Team, Judge, Orchestrator, Documentation) | `ARCHITECTURE.md` §3–§5 | ✅ designed |

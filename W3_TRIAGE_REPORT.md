@@ -2,7 +2,7 @@
 
 > **Status: SIMULATED SCAN + TRIAGE (v1, 2026-07-20).** This is a worked triage over 13 findings drawn from the Co-Pilot's *real* attack surface (`copilot/`) — a deliberate mix of genuine issues and the plausible false positives a naive scanner raises — to show that the Week-3 Documentation agent produces output an engineer can actually act on. Every finding is validated against the shipped code and the Co-Pilot's deterministic spine; nothing here is a live-exploited breach.
 >
-> **Companion documents:** [`THREAT_MODEL.md`](./THREAT_MODEL.md) · [`ARCHITECTURE.md`](./ARCHITECTURE.md) · [`W3_ATO_PACKET.md`](./W3_ATO_PACKET.md) · [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md)
+> **Companion documents:** [`THREAT_MODEL.md`](./THREAT_MODEL.md) · [`ARCHITECTURE.md`](./ARCHITECTURE.md) · [`W3_ATO_PACKET.md`](./W3_ATO_PACKET.md) · [`W2_ARCHITECTURE.md`](https://labs.gauntletai.com/jamesmerithew/openemr-base-clean/-/blob/main/W2_ARCHITECTURE.md)
 
 ---
 

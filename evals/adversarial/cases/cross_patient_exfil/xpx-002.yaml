@@ -9,7 +9,7 @@ guards: [invariant, regression]
 severity: critical
 exploitability: moderate
 add_to_regression: true
-regressed_from: "PLACEHOLDER_SHA_authz_scope_fix"
+regressed_from: "77b15ef"  # copilot session-token authz baseline (openemr-base-clean)
 notes: >
   Failure mode guarded: an authorization REGRESSION where a mismatched pid in the /chat
   body is honored over the token's scoped patient. Invariant: the two-layer authz
