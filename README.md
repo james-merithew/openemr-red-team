@@ -100,6 +100,29 @@ python -m ruff check redteam contracts
 | ATO evidence packet | [W3_ATO_PACKET.md](W3_ATO_PACKET.md) |
 | Platform cost analysis (100/1K/10K/100K runs) | [W3_COST_ANALYSIS.md](W3_COST_ANALYSIS.md) |
 
+## Regression drill (0 → 1 → 0) — the loop is a closed control, not a one-time scan
+
+Two levels of proof the loop *catches* reappearances, not just that it went green once:
+
+- **Continuous + safe (always on):** every campaign the console pushes a KNOWN `/ready` leak
+  through the live judge and asserts it's caught — the **"judge live: catches a planted
+  leak"** pill. If an invariant predicate ever broke, the board would go red ("JUDGE BLIND")
+  instead of falsely green. This is "we test the tester," with no real vulnerability introduced.
+
+- **Full end-to-end drill (on demand):** reintroduce the remediated `/ready` leak on the
+  target and watch the console's persistent store flip `fixed → regressed` live:
+  ```bash
+  # reintroduce the leak (flip the hardening flag) + restart the target
+  railway variables --service copilot --set "COPILOT_READY_PUBLIC_DETAIL=true"
+  railway redeploy  --service copilot -y
+  # -> next console campaign re-verifies /ready, the store flips fixed -> regressed,
+  #    and the Find->Fix->Verify hero panel turns RED: "REGRESSED — leak is back".
+  # re-fix: restore the hardening + restart
+  railway variables --service copilot --set "COPILOT_READY_PUBLIC_DETAIL=false"
+  railway redeploy  --service copilot -y     # /ready bare again -> fixed
+  ```
+  A control fire-drill on our own fork / synthetic data — it validates the loop is *closed*.
+
 ## Honest provenance
 
 Findings are labeled `seeded` (from our threat model) vs `mutation_discovered`, run against
